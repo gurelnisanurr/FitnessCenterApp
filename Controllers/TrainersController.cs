@@ -49,8 +49,23 @@ namespace FitnessCenterApp.Controllers
         // GET: Trainers/Create
         public IActionResult Create()
         {
-            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenters, "Id", "Address");
-            return View();
+            var viewModel = new TrainerViewModel
+            {
+                Trainer = new Trainer(),  
+                Services = _context.Services
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = s.ServiceName
+                    })
+                    .ToList(),
+                SelectedServiceIds = new List<int>() // ← boş liste
+            };
+
+            ViewData["FitnessCenterId"] =
+                new SelectList(_context.FitnessCenters, "Id", "Name");
+
+            return View(viewModel);  
         }
 
         // POST: Trainers/Create
