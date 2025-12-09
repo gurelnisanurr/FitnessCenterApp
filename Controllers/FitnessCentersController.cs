@@ -52,7 +52,7 @@ namespace FitnessCenterApp.Controllers
         // POST: FitnessCenters/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,WorkingHours")] FitnessCenter fitnessCenter)
+        public async Task<IActionResult> Create([Bind("Name,Address,WorkingHours")] FitnessCenter fitnessCenter)
         {
             if (ModelState.IsValid)
             {

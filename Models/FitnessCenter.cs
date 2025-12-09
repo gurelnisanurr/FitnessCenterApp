@@ -14,9 +14,9 @@ namespace FitnessCenterApp.Models
         [Required]
         public string Address { get; set; }
 
-        public string WorkingHours { get; set; } // ör: 08:00 - 22:00
+        public string WorkingHours { get; set; }
 
-        public List<Service> Services { get; set; }
-        public List<Trainer> Trainers { get; set; }
+        public List<Service> Services { get; set; } = new List<Service>();
+        public List<Trainer> Trainers { get; set; } = new List<Trainer>();
     }
 }

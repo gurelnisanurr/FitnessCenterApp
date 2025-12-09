@@ -4,56 +4,68 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>Trainer</h4>
+<h1>Eğitmen Oluştur</h1>
 <hr />
+
 <div class="row">
     <div class="col-md-4">
-        <div class="form-group">
-            <label>Verdiği Hizmetler</label>
-            <div>
-                @foreach (var service in Model.Services)
-                {
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               name="SelectedServiceIds"
-                               value="@service.Value" />
-
-                        <label class="form-check-label">@service.Text</label>
-                    </div>
-                }
-            </div>
-        </div>
 
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Trainer.FullName" class="control-label"></label>
+                <label asp-for="Trainer.FullName" class="control-label">Ad Soyad</label>
                 <input asp-for="Trainer.FullName" class="form-control" />
                 <span asp-validation-for="Trainer.FullName" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Trainer.SpecialtyText" class="control-label"></label>
+                <label asp-for="Trainer.SpecialtyText" class="control-label">Uzmanlık Alanı</label>
                 <input asp-for="Trainer.SpecialtyText" class="form-control" />
                 <span asp-validation-for="Trainer.SpecialtyText" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Trainer.FitnessCenterId" class="control-label"></label>
-                <select asp-for="Trainer.FitnessCenterId" class ="form-control" asp-items="ViewBag.FitnessCenterId"></select>
+                <label asp-for="Trainer.FitnessCenterId" class="control-label">Çalıştığı Salon</label>
+                <select asp-for="Trainer.FitnessCenterId"
+                        class="form-control"
+                        asp-items="ViewBag.FitnessCenterId">
+                    <option value="">Salon Seçiniz</option>
+                </select>
+                <span asp-validation-for="Trainer.FitnessCenterId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="form-group mt-3">
+                <label>Verdiği Hizmetler</label>
+                <div class="border rounded p-2">
+                    @foreach (var service in Model.Services)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="SelectedServiceIds"
+                                   value="@service.Value" />
+
+                            <label class="form-check-label">@service.Text</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Kaydet" class="btn btn-primary" />
             </div>
         </form>
+
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Listeye Dön</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
