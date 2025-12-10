@@ -6,9 +6,11 @@ using FitnessCenterApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FitnessCenterApp.Controllers
 {
+    [Authorize] // role yok, sadece giriş yeterli
     public class AppointmentController : Controller
     {
         private readonly FitnessDbContext _context;

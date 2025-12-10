@@ -48,108 +48,147 @@
     </div>
 </div>
 
-<div class="row g-4">
-    <div class="col-md-3">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Salonlar</h5>
-                <p class="card-text text-muted">
-                    Spor salonu şubelerini ekle, düzenle ve yönet.
-                </p>
-                <a asp-controller="FitnessCenters" asp-action="Index" class="btn btn-sm btn-outline-secondary">
-                    Salonları Yönet
-                </a>
+@* ADMIN İSE TAM DASHBOARD *@
+@if (User.IsInRole("Admin"))
+{
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Salonlar</h5>
+                    <p class="card-text text-muted">
+                        Spor salonu şubelerini ekle, düzenle ve yönet.
+                    </p>
+                    <a asp-controller="FitnessCenters" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        Salonları Yönet
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-3">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Hizmetler</h5>
-                <p class="card-text text-muted">
-                    Fitness, yoga, pilates gibi hizmetlerin süresini ve ücretini tanımla.
-                </p>
-                <a asp-controller="Services" asp-action="Index" class="btn btn-sm btn-outline-secondary">
-                    Hizmetleri Yönet
-                </a>
+        <div class="col-md-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Hizmetler</h5>
+                    <p class="card-text text-muted">
+                        Fitness, yoga, pilates gibi hizmetlerin süresini ve ücretini tanımla.
+                    </p>
+                    <a asp-controller="Services" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        Hizmetleri Yönet
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-3">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Eğitmenler</h5>
-                <p class="card-text text-muted">
-                    Eğitmen bilgilerini, uzmanlıklarını ve verdikleri hizmetleri düzenle.
-                </p>
-                <a asp-controller="Trainers" asp-action="Index" class="btn btn-sm btn-outline-secondary">
-                    Eğitmenleri Yönet
-                </a>
+        <div class="col-md-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Eğitmenler</h5>
+                    <p class="card-text text-muted">
+                        Eğitmen bilgilerini, uzmanlıklarını ve verdikleri hizmetleri düzenle.
+                    </p>
+                    <a asp-controller="Trainers" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        Eğitmenleri Yönet
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-3">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Üyeler</h5>
-                <p class="card-text text-muted">
-                    Üyeleri, iletişim bilgilerini ve randevularını takip et.
-                </p>
-                <a asp-controller="Members" asp-action="Index" class="btn btn-sm btn-outline-secondary">
-                    Üyeleri Yönet
-                </a>
+        <div class="col-md-3">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Üyeler</h5>
+                    <p class="card-text text-muted">
+                        Üyeleri, iletişim bilgilerini ve randevularını takip et.
+                    </p>
+                    <a asp-controller="Members" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        Üyeleri Yönet
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card dashboard-card h-100 border-primary">
-            <div class="card-body">
-                <span class="badge bg-primary badge-soft mb-2">Randevu</span>
-                <h5 class="card-title">Randevu Yönetimi</h5>
-                <p class="card-text text-muted">
-                    Üyeler için eğitmen ve hizmet seçerek randevu oluştur, çakışmaları kontrol et ve onayla.
-                </p>
-                <a asp-controller="Appointments" asp-action="Index" class="btn btn-sm btn-primary me-2">
-                    Randevuları Gör
-                </a>
-                <a asp-controller="Appointments" asp-action="Create" class="btn btn-sm btn-outline-primary">
-                    Yeni Randevu
-                </a>
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100 border-primary">
+                <div class="card-body">
+                    <span class="badge bg-primary badge-soft mb-2">Randevu</span>
+                    <h5 class="card-title">Randevu Yönetimi</h5>
+                    <p class="card-text text-muted">
+                        Üyeler için eğitmen ve hizmet seçerek randevu oluştur, çakışmaları kontrol et ve onayla.
+                    </p>
+                    <a asp-controller="Appointment" asp-action="Index" class="btn btn-sm btn-primary me-2">
+                        Randevuları Gör
+                    </a>
+                    <a asp-controller="Appointment" asp-action="Create" class="btn btn-sm btn-outline-primary">
+                        Yeni Randevu
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <span class="badge bg-success badge-soft mb-2">AI</span>
-                <h5 class="card-title">AI Egzersiz / Diyet Önerileri</h5>
-                <p class="card-text text-muted">
-                    Boy, kilo ve hedef bilgilerine göre yapay zekâ destekli program önerileri
-                    (bu bölümde AI entegrasyonunu göstereceğiz).
-                </p>
-                <button class="btn btn-sm btn-outline-success" disabled>Çok yakında</button>
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <span class="badge bg-success badge-soft mb-2">AI</span>
+                    <h5 class="card-title">AI Egzersiz / Diyet Önerileri</h5>
+                    <p class="card-text text-muted">
+                        Boy, kilo ve hedef bilgilerine göre yapay zekâ destekli program önerileri
+                        (bu bölümde AI entegrasyonunu göstereceğiz).
+                    </p>
+                    <button class="btn btn-sm btn-outline-success" disabled>Çok yakında</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card dashboard-card h-100">
-            <div class="card-body">
-                <span class="badge bg-secondary badge-soft mb-2">API</span>
-                <h5 class="card-title">Raporlama & API</h5>
-                <p class="card-text text-muted">
-                    Eğitmen uygunluk API’si ve LINQ sorgularını proje raporunda bu bölümle ilişkilendirebilirsin.
-                </p>
-                <a href="/api/trainersapi/available?date=@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")&serviceId=1"
-                   class="btn btn-sm btn-outline-secondary">
-                    Örnek API Çağrısı
-                </a>
+        <div class="col-md-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <span class="badge bg-secondary badge-soft mb-2">API</span>
+                    <h5 class="card-title">Raporlama & API</h5>
+                    <p class="card-text text-muted">
+                        Eğitmen uygunluk API’si ve LINQ sorgularını proje raporunda bu bölümle ilişkilendirebilirsin.
+                    </p>
+                    <a href="/api/trainersapi/available?date=@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")&serviceId=1"
+                       class="btn btn-sm btn-outline-secondary">
+                        Örnek API Çağrısı
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    @* NORMAL KULLANICI İÇİN SADE DASHBOARD *@
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <span class="badge bg-primary badge-soft mb-2">Randevularım</span>
+                    <h5 class="card-title">Randevu Oluştur</h5>
+                    <p class="card-text text-muted">
+                        Uygun eğitmen ve saat seçerek yeni randevu oluştur.
+                    </p>
+                    <a asp-controller="Appointment" asp-action="Create" class="btn btn-sm btn-primary">
+                        Yeni Randevu
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-body">
+                    <span class="badge bg-outline badge-soft mb-2">Takip</span>
+                    <h5 class="card-title">Mevcut Randevular</h5>
+                    <p class="card-text text-muted">
+                        Geçmiş ve yaklaşan randevularını liste halinde görüntüle.
+                    </p>
+                    <a asp-controller="Appointment" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                        Randevuları Gör
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

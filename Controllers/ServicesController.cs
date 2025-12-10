@@ -5,9 +5,12 @@ using FitnessCenterApp.Data;
 using FitnessCenterApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace FitnessCenterApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ServicesController : Controller
     {
         private readonly FitnessDbContext _context;

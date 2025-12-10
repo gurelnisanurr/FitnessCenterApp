@@ -8,9 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using FitnessCenterApp.Data;
 using FitnessCenterApp.Models;
 using FitnessCenterApp.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace FitnessCenterApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TrainersController : Controller
     {
         private readonly FitnessDbContext _context;
