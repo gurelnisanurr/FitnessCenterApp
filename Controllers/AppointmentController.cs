@@ -9,16 +9,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessCenterApp.Controllers
 {
-    public class AppointmentsController : Controller
+    public class AppointmentController : Controller
     {
         private readonly FitnessDbContext _context;
 
-        public AppointmentsController(FitnessDbContext context)
+        public AppointmentController(FitnessDbContext context)
         {
             _context = context;
         }
 
-        // GET: Appointments
+        // GET: Appointment
         public async Task<IActionResult> Index()
         {
             var query = _context.Appointments
@@ -29,7 +29,7 @@ namespace FitnessCenterApp.Controllers
             return View(await query.ToListAsync());
         }
 
-        // GET: Appointments/Details/5
+        // GET: Appointment/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -47,7 +47,7 @@ namespace FitnessCenterApp.Controllers
             return View(appointment);
         }
 
-        // GET: Appointments/Create
+        // GET: Appointment/Create
         public IActionResult Create()
         {
             ViewData["MemberId"] =
@@ -60,7 +60,7 @@ namespace FitnessCenterApp.Controllers
             return View();
         }
 
-        // POST: Appointments/Create
+        // POST: Appointment/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AppointmentDate,MemberId,TrainerId,ServiceId")] Appointment appointment)
@@ -119,7 +119,7 @@ namespace FitnessCenterApp.Controllers
             return View(appointment);
         }
 
-        // GET: Appointments/Edit/5
+        // GET: Appointment/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -139,7 +139,7 @@ namespace FitnessCenterApp.Controllers
             return View(appointment);
         }
 
-        // POST: Appointments/Edit/5
+        // POST: Appointment/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,AppointmentDate,IsApproved,MemberId,TrainerId,ServiceId")] Appointment appointment)
@@ -203,7 +203,7 @@ namespace FitnessCenterApp.Controllers
             return View(appointment);
         }
 
-        // GET: Appointments/Delete/5
+        // GET: Appointment/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -221,7 +221,7 @@ namespace FitnessCenterApp.Controllers
             return View(appointment);
         }
 
-        // POST: Appointments/Delete/5
+        // POST: Appointment/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
