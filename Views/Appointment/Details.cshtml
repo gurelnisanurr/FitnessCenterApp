@@ -1,0 +1,34 @@
+﻿@model FitnessCenterApp.Models.Appointment
+
+@{
+    ViewData["Title"] = "Randevu Detayı";
+}
+
+<h1>Randevu Detayı</h1>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Üye</dt>
+    <dd class="col-sm-10">@Model.Member?.FullName</dd>
+
+    <dt class="col-sm-2">Eğitmen</dt>
+    <dd class="col-sm-10">@Model.Trainer?.FullName</dd>
+
+    <dt class="col-sm-2">Hizmet</dt>
+    <dd class="col-sm-10">@Model.Service?.ServiceName</dd>
+
+    <dt class="col-sm-2">Tarih/Saat</dt>
+    <dd class="col-sm-10">@Model.AppointmentDate</dd>
+
+    <dt class="col-sm-2">Onay Durumu</dt>
+    <dd class="col-sm-10">
+        @(Model.IsApproved ? "Onaylı" : "Onaysız")
+    </dd>
+</dl>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Düzenle</a>
+    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+</p>
+

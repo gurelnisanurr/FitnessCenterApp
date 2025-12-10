@@ -9,7 +9,7 @@ namespace FitnessCenterApp.Models
 
         [Required]
         [StringLength(80)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Required]
         public string Address { get; set; }

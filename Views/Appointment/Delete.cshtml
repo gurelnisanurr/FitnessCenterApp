@@ -1,0 +1,32 @@
+﻿@model FitnessCenterApp.Models.Appointment
+
+@{
+    ViewData["Title"] = "Randevu Sil";
+}
+
+<h1>Randevu Sil</h1>
+
+<h3>Bu randevuyu silmek istediğinize emin misiniz?</h3>
+
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Üye</dt>
+    <dd class="col-sm-10">@Model.Member?.FullName</dd>
+
+    <dt class="col-sm-2">Eğitmen</dt>
+    <dd class="col-sm-10">@Model.Trainer?.FullName</dd>
+
+    <dt class="col-sm-2">Hizmet</dt>
+    <dd class="col-sm-10">@Model.Service?.ServiceName</dd>
+
+    <dt class="col-sm-2">Tarih/Saat</dt>
+    <dd class="col-sm-10">@Model.AppointmentDate</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Sil</button>
+    <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+</form>
+

@@ -1,0 +1,63 @@
+﻿@model IEnumerable<FitnessCenterApp.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Randevular";
+}
+
+<h1>Randevular</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Randevu Oluştur</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Üye</th>
+            <th>Eğitmen</th>
+            <th>Hizmet</th>
+            <th>Tarih / Saat</th>
+            <th>Onay Durumu</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+        <tr>
+            <td>@item.Member?.FullName</td>
+            <td>@item.Trainer?.FullName</td>
+            <td>@item.Service?.ServiceName</td>
+            <td>@item.AppointmentDate</td>
+            <td>
+                @if (item.IsApproved)
+                {
+                    <span class="badge bg-success">Onaylı</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">Onaysız</span>
+                }
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Detay</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Düzenle</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Sil</a>
+
+                @if (!item.IsApproved)
+                {
+                    <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Onayla</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-warning">Onayı Kaldır</button>
+                    </form>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
