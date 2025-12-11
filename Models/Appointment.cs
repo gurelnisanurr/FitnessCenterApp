@@ -13,13 +13,12 @@ namespace FitnessCenterApp.Models
         public bool IsApproved { get; set; } = false;
 
         public int MemberId { get; set; }
-        public Member Member { get; set; }
+        public Member? Member { get; set; }  
 
         public int TrainerId { get; set; }
-        public Trainer Trainer { get; set; }
+        public Trainer? Trainer { get; set; } 
 
         public int ServiceId { get; set; }
-        public Service Service { get; set; }
+        public Service? Service { get; set; } 
     }
 }
-

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
-
 namespace FitnessCenterApp.Controllers
 {
     [Authorize(Roles = "Admin")]
@@ -32,13 +31,15 @@ namespace FitnessCenterApp.Controllers
         // GET: Services/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
             var service = await _context.Services
                 .Include(s => s.FitnessCenter)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (service == null) return NotFound();
+            if (service == null)
+                return NotFound();
 
             return View(service);
         }
@@ -55,7 +56,8 @@ namespace FitnessCenterApp.Controllers
         // POST: Services/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ServiceName,DurationInMinutes,Price,FitnessCenterId")] Service service)
+        public async Task<IActionResult> Create(
+            [Bind("ServiceName,DurationInMinutes,Price,FitnessCenterId")] Service service)
         {
             if (ModelState.IsValid)
             {
@@ -73,10 +75,12 @@ namespace FitnessCenterApp.Controllers
         // GET: Services/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
             var service = await _context.Services.FindAsync(id);
-            if (service == null) return NotFound();
+            if (service == null)
+                return NotFound();
 
             ViewBag.FitnessCenterId =
                 new SelectList(_context.FitnessCenters, "Id", "Name", service.FitnessCenterId);
@@ -87,7 +91,9 @@ namespace FitnessCenterApp.Controllers
         // POST: Services/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ServiceName,DurationInMinutes,Price,FitnessCenterId")] Service service)
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,ServiceName,DurationInMinutes,Price,FitnessCenterId")] Service service)
         {
             if (id != service.Id)
                 return NotFound();
@@ -119,13 +125,15 @@ namespace FitnessCenterApp.Controllers
         // GET: Services/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
             var service = await _context.Services
                 .Include(s => s.FitnessCenter)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (service == null) return NotFound();
+            if (service == null)
+                return NotFound();
 
             return View(service);
         }
@@ -150,3 +158,4 @@ namespace FitnessCenterApp.Controllers
         }
     }
 }
+

@@ -8,9 +8,9 @@ namespace FitnessCenterApp.Models.ViewModels
     {
         public Trainer Trainer { get; set; }
 
-        public List<SelectListItem> Services { get; set; }
+        public List<SelectListItem>? Services { get; set; }
 
         // Checkbox ile seçilecek olan Service Id listesi
-        public List<int> SelectedServiceIds { get; set; }
+        public List<int> SelectedServiceIds { get; set; } = new();
     }
 }

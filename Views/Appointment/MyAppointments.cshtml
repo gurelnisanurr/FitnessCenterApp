@@ -1,0 +1,51 @@
+﻿@model IEnumerable<FitnessCenterApp.Models.Appointment>
+
+@{
+    ViewData["Title"] = "Benim Randevularım";
+}
+
+<h1>Benim Randevularım</h1>
+<hr />
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Henüz hiç randevun bulunmuyor.
+        <a asp-controller="Appointment" asp-action="Create">Buradan yeni randevu oluşturabilirsin.</a>
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tarih / Saat</th>
+                <th>Eğitmen</th>
+                <th>Hizmet</th>
+                <th>Salon</th>
+                <th>Onay Durumu</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.AppointmentDate</td>
+                    <td>@item.Trainer?.FullName</td>
+                    <td>@item.Service?.ServiceName</td>
+                    <td>@item.Service?.FitnessCenter?.Name</td>
+                    <td>
+                        @if (item.IsApproved)
+                        {
+                            <span class="badge bg-success">Onaylı</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Onay Bekliyor</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

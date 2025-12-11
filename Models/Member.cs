@@ -15,6 +15,6 @@ namespace FitnessCenterApp.Models
 
         public string Phone { get; set; }
 
-        public List<Appointment> Appointments { get; set; }
+        public List<Appointment>? Appointments { get; set; }
     }
 }

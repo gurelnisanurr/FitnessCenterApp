@@ -49,7 +49,6 @@ namespace FitnessCenterApp.Controllers
             return View(trainer);
         }
 
-        // GET: Trainers/Create
         public IActionResult Create()
         {
             var model = new TrainerViewModel
@@ -64,8 +63,7 @@ namespace FitnessCenterApp.Controllers
                     .ToList()
             };
 
-            ViewData["FitnessCenterId"] =
-                new SelectList(_context.FitnessCenters, "Id", "Name");
+            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenters, "Id", "Name");
 
             return View(model);
         }
@@ -77,36 +75,33 @@ namespace FitnessCenterApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                // ÖNCE Trainer kaydedilir
+                // Eğitmeni kaydet
                 _context.Add(model.Trainer);
                 await _context.SaveChangesAsync();
 
-                // SONRA Many-to-Many Servis bağlantıları eklenir
+                // Seçilen hizmetleri ilişkilendir
                 if (model.SelectedServiceIds != null)
                 {
-                    foreach (var serviceId in model.SelectedServiceIds)
-                    {
-                        var service = await _context.Services.FindAsync(serviceId);
-                        model.Trainer.Services.Add(service);
-                    }
+                    var selectedServices = await _context.Services
+                        .Where(s => model.SelectedServiceIds.Contains(s.Id))
+                        .ToListAsync();
 
+                    model.Trainer.Services = selectedServices;
                     await _context.SaveChangesAsync();
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            // Form bozulursa dropdownlar geri dolar
-            ViewData["FitnessCenterId"] =
-                new SelectList(_context.FitnessCenters, "Id", "Name", model.Trainer.FitnessCenterId);
-
+            // VALIDATION HATASI OLURSA SERVİSLERİ YENİDEN DOLDURMALISIN!
             model.Services = _context.Services
                 .Select(s => new SelectListItem
                 {
                     Value = s.Id.ToString(),
                     Text = s.ServiceName
-                })
-                .ToList();
+                }).ToList();
+
+            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenters, "Id", "Name", model.Trainer.FitnessCenterId);
 
             return View(model);
         }

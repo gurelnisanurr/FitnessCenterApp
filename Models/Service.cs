@@ -8,7 +8,7 @@ namespace FitnessCenterApp.Models
         public int Id { get; set; }
 
         [Required]
-        public string ServiceName { get; set; }
+        public string ServiceName { get; set; } = string.Empty;
 
         public int DurationInMinutes { get; set; }
 
@@ -16,9 +16,9 @@ namespace FitnessCenterApp.Models
         public decimal Price { get; set; }
 
         public int FitnessCenterId { get; set; }
-        public FitnessCenter FitnessCenter { get; set; }
+        public FitnessCenter? FitnessCenter { get; set; }   // 🔹 Nullable
 
-        public List<Appointment> Appointments { get; set; }
-        public List<Trainer> Trainers { get; set; }
+        public List<Appointment>? Appointments { get; set; } = new(); // 🔹 Nullable + default boş liste
+        public List<Trainer>? Trainers { get; set; } = new();        // 🔹 Nullable + default boş liste
     }
 }
