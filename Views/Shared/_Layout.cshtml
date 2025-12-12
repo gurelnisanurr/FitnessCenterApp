@@ -4,75 +4,90 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FitnessCenterApp</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/FitnessCenterApp.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    FitnessCenterApp
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
-                        </li>
+<body class="app-body">
+    <div class="page-wrap">
 
-                        @* SADECE ADMIN GÖRSÜN *@
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="FitnessCenters" asp-action="Index">Salonlar</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Services" asp-action="Index">Hizmetler</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Trainers" asp-action="Index">Eğitmenler</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Members" asp-action="Index">Üyeler</a>
-                            </li>
-                        }
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbar-fitness shadow-sm">
+                <div class="container">
+                    <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="logo-dot"></span> FitnessCenterApp
+                    </a>
 
-                        @* GİRİŞ YAPMIŞ HERKES İÇİN *@
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Appointment" asp-action="Index">Randevular</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
-                            </li>
-                        }
-                    </ul>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                    <partial name="_LoginPartial" />
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                            </li>
+
+                            @* SADECE ADMIN *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" asp-area="" asp-controller="FitnessCenters" asp-action="Index">Salonlar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" asp-area="" asp-controller="Services" asp-action="Index">Hizmetler</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" asp-area="" asp-controller="Trainers" asp-action="Index">Eğitmenler</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" asp-area="" asp-controller="Members" asp-action="Index">Üyeler</a>
+                                </li>
+                            }
+
+                            @* LOGIN OLMUŞ HERKES *@
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="nav-link text-white-50" asp-area="" asp-controller="Appointment" asp-action="Index">Randevular</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="nav-link text-white-50" asp-area="" asp-controller="Appointment" asp-action="MyAppointments">Randevularım</a>
+                                    }
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-white-50" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
+                                </li>
+                            }
+                        </ul>
+
+                        <partial name="_LoginPartial" />
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted mt-4">
-        <div class="container d-flex justify-content-between align-items-center py-2">
-            <span>&copy; @DateTime.Now.Year - FitnessCenterApp</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Gizlilik</a>
+        <div class="container my-4 page-content">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+
+        <footer class="footer text-muted mt-4">
+            <div class="container d-flex justify-content-between align-items-center py-2">
+                <span>&copy; @DateTime.Now.Year - FitnessCenterApp</span>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none">Gizlilik</a>
+            </div>
+        </footer>
+
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -80,3 +95,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

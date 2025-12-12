@@ -17,6 +17,217 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+/* ================================
+   Base / Layout
+==================================*/
+html, body {
+    height: 100%;
+}
+
+.app-body {
+    min-height: 100%;
+    margin: 0;
+    background: radial-gradient(circle at top left, #1de9b6 0, #0d0b24 35%, #05030f 100%);
+    color: #f8f9fa;
+}
+
+/* Footer her zaman altta kalsýn */
+.page-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+}
+
+/* Footer fixed olmasýn */
+.footer {
+    position: static !important;
+    width: 100%;
+    background: radial-gradient(circle at top right, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.9));
+    border-top: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+/* ================================
+   Navbar
+==================================*/
+.navbar-fitness {
+    background: linear-gradient(120deg, #111827, #1f2937 40%, #10b981 120%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+    .navbar-fitness .navbar-brand {
+        color: #f9fafb;
+    }
+
+        .navbar-fitness .navbar-brand:hover {
+            color: #a7f3d0;
+        }
+
+    .navbar-fitness .nav-link {
+        font-weight: 500;
+    }
+
+        .navbar-fitness .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+/* Logo dot */
+.logo-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+}
+
+/* ================================
+   Hero (Home)
+==================================*/
+.dashboard-hero {
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #f9fafb, #e5f6ff);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.45);
+    text-align: center;
+}
+
+.text-dark-hero {
+    color: #0f172a;
+}
+
+.text-muted-hero {
+    color: #4b5563;
+}
+
+/* ================================
+   Cards
+==================================*/
+.card {
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 1rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.6);
+    color: #e5e7eb;
+}
+
+    .card .card-title {
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+/* Dashboard card hover */
+.dashboard-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.9);
+        border-color: rgba(45, 212, 191, 0.7);
+    }
+
+/* ================================
+   Buttons
+==================================*/
+.btn-primary {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-color: #16a34a;
+    font-weight: 600;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #4ade80, #22c55e);
+        border-color: #22c55e;
+    }
+
+.btn-outline-primary {
+    border-color: #22c55e;
+    color: #a7f3d0;
+}
+
+    .btn-outline-primary:hover {
+        background: #22c55e;
+        color: #022c22;
+    }
+
+.btn-outline-secondary {
+    border-color: rgba(148, 163, 184, 0.6);
+    color: #e5e7eb;
+}
+
+    .btn-outline-secondary:hover {
+        background: rgba(148, 163, 184, 0.15);
+        color: #ffffff;
+    }
+
+/* ================================
+   Tables - okunabilirlik
+==================================*/
+.table {
+    color: #e5e7eb !important;
+}
+
+    .table th {
+        color: #f9fafb !important;
+    }
+
+    .table td {
+        color: #e5e7eb !important;
+    }
+
+    .table thead th {
+        background: rgba(15, 23, 42, 0.92) !important;
+        border-color: rgba(148, 163, 184, 0.25) !important;
+    }
+
+    .table tbody tr {
+        background: rgba(15, 23, 42, 0.72) !important;
+    }
+
+        .table tbody tr:hover {
+            background: rgba(15, 23, 42, 0.88) !important;
+        }
+
+    .table a {
+        color: #93c5fd !important;
+        text-decoration: none;
+    }
+
+        .table a:hover {
+            text-decoration: underline;
+        }
+
+
+.table-wrap {
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 1rem;
+    overflow: hidden;
+    padding: 0.5rem;
+}
+
+/* ================================
+   Forms (dark theme uyumu)
+==================================*/
+.form-control, .form-select {
+    background-color: rgba(15, 23, 42, 0.85);
+    border-color: rgba(148, 163, 184, 0.35);
+    color: #e5e7eb;
+}
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(15, 23, 42, 0.92);
+        border-color: rgba(34, 197, 94, 0.7);
+        box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.15);
+        color: #ffffff;
+    }
+
+label, .form-label {
+    color: #e5e7eb;
 }

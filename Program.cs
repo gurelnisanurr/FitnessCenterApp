@@ -17,15 +17,14 @@ builder.Services.AddDbContext<FitnessDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-//  Identity + ROL desteði
+//  Identity + ROL desteï¿½i
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false;   // Mail onayý zorunlu olmasýn
+    options.SignIn.RequireConfirmedAccount = false;   // Mail onayÄ± zorunlu olmasÄ±n
 })
 .AddRoles<IdentityRole>()                             // ROLLER
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-//  GLOBAL olarak login zorunlu
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -34,6 +33,11 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AllowAnonymousToAreaFolder("Identity", "/Account");
+});
 
 var app = builder.Build();
 
@@ -56,7 +60,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Admin kullanýcý
+    // Admin kullanï¿½cï¿½
     var adminEmail = "nisa.gurel@sakarya.edu.tr"; 
     var adminPassword = "Nisa.3578";
 
