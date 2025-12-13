@@ -1,0 +1,80 @@
+﻿@model FitnessCenterApp.Models.ViewModels.AiFitnessViewModel
+
+@{
+    ViewData["Title"] = "AI Egzersiz & Diyet Önerisi";
+}
+
+<style>
+    .ai-output {
+        height: 420px; 
+        overflow-y: auto; 
+        padding-right: 6px; /* scrollbar taşmasın */
+    }
+
+        .ai-output pre {
+            white-space: pre-wrap; /* satır kır */
+            word-break: break-word; /* uzun kelime kır */
+            margin: 0;
+        }
+</style>
+
+<div class="dashboard-hero">
+    <h1 class="text-dark-hero">AI Egzersiz & Diyet Önerisi</h1>
+    <p class="lead text-muted-hero mt-2">
+        Boy, kilo ve hedef bilgine göre kişiselleştirilmiş öneri al.
+    </p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card p-4">
+            <h5 class="mb-3">Bilgilerini Gir</h5>
+
+            <form method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Boy (cm)</label>
+                    <input asp-for="Height" class="form-control" type="number" min="100" max="250" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Kilo (kg)</label>
+                    <input asp-for="Weight" class="form-control" type="number" min="30" max="300" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Hedef</label>
+                    <select asp-for="Goal" class="form-select">
+                        <option value="Kilo vermek">Kilo vermek</option>
+                        <option value="Kas kazanmak">Kas kazanmak</option>
+                        <option value="Formda kalmak">Formda kalmak</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    AI Önerisi Al
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="mb-3">AI Yanıtı</h5>
+
+            <div class="ai-output">
+                @if (!string.IsNullOrWhiteSpace(Model.AiResponse))
+                {
+                    <pre class="mb-0">@Model.AiResponse</pre>
+                }
+                else
+                {
+                    <div class="text-muted">
+                        Henüz öneri alınmadı. Sol taraftan bilgileri girip “AI Önerisi Al” butonuna bas.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
