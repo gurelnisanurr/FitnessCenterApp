@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace FitnessCenterApp.Models
 {
@@ -19,6 +20,9 @@ namespace FitnessCenterApp.Models
         public Trainer? Trainer { get; set; } 
 
         public int ServiceId { get; set; }
-        public Service? Service { get; set; } 
+        public Service? Service { get; set; }
+        public string? UserId { get; set; }
+        public IdentityUser? User { get; set; }
+
     }
 }
