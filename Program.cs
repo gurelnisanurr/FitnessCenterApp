@@ -60,7 +60,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Admin kullan�c�
+    // Admin kullanici
     var adminEmail = "nisa.gurel@sakarya.edu.tr"; 
     var adminPassword = "Nisa.3578";
 
