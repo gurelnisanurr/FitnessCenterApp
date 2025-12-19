@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace FitnessCenterApp.Models
@@ -8,20 +9,23 @@ namespace FitnessCenterApp.Models
         public int Id { get; set; }
 
         [Required]
-        public string FullName { get; set; } = string.Empty;
+        public string FullName { get; set; }
 
-        // "Kas geliştirme, fitness" vs.
-        public string SpecialtyText { get; set; } = string.Empty;
+        [Required]
+        public string SpecialtyText { get; set; }
+
+        // Günlük müsaitlik saatleri
+        [Required]
+        public TimeSpan AvailableFrom { get; set; } = new TimeSpan(9, 0, 0);
+
+        [Required]
+        public TimeSpan AvailableTo { get; set; } = new TimeSpan(18, 0, 0);
 
         public int FitnessCenterId { get; set; }
         public FitnessCenter? FitnessCenter { get; set; }
 
-        // Many-to-many: Eğitmenin verdiği hizmetler
         public List<Service>? Services { get; set; } = new();
-
-        // Eğitmenin randevuları
         public List<Appointment>? Appointments { get; set; } = new();
     }
 }
-
 

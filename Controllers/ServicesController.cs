@@ -143,10 +143,25 @@ namespace FitnessCenterApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var service = await _context.Services.FindAsync(id);
+            var service = await _context.Services
+                .Include(s => s.Trainers)        // Eğitmenlerle olan ilişki
+                .Include(s => s.Appointments)    // Randevular
+                .FirstOrDefaultAsync(s => s.Id == id);
 
-            if (service != null)
-                _context.Services.Remove(service);
+            if (service == null)
+                return NotFound();
+
+            // Eğitmen – Hizmet (ServiceTrainer) ilişkilerini temizle
+            service.Trainers.Clear();
+
+            // Bu hizmete bağlı randevuları sil
+            if (service.Appointments != null && service.Appointments.Any())
+            {
+                _context.Appointments.RemoveRange(service.Appointments);
+            }
+
+            // Hizmeti sil
+            _context.Services.Remove(service);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

@@ -35,6 +35,20 @@
                 <span asp-validation-for="Trainer.FitnessCenterId" class="text-danger"></span>
             </div>
 
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Trainer.AvailableFrom" class="form-label">Müsaitlik Başlangıç</label>
+                    <input asp-for="Trainer.AvailableFrom" type="time" class="form-control" />
+                    <span asp-validation-for="Trainer.AvailableFrom" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Trainer.AvailableTo" class="form-label">Müsaitlik Bitiş</label>
+                    <input asp-for="Trainer.AvailableTo" type="time" class="form-control" />
+                    <span asp-validation-for="Trainer.AvailableTo" class="text-danger"></span>
+                </div>
+            </div>
+
             <div class="form-group mt-3">
                 <label>Verdiği Hizmetler</label>
                 <div class="border rounded p-2">

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using FitnessCenterApp.Data;
 using FitnessCenterApp.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,6 @@ using Microsoft.Extensions.Logging;
 
 namespace FitnessCenterApp.Areas.Identity.Pages.Account
 {
-    [AllowAnonymous]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -29,6 +27,8 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+
+        // FitnessDbContext
         private readonly FitnessDbContext _context;
 
         public RegisterModel(
@@ -37,7 +37,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            FitnessDbContext context)
+            FitnessDbContext context) 
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -45,7 +45,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _context = context;
+            _context = context; 
         }
 
         [BindProperty]
@@ -59,50 +59,63 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "Email")]
+            [Display(Name = "E-posta")]
             public string Email { get; set; }
 
             [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [StringLength(
+                100,
+                ErrorMessage = "{0} en az {2}, en fazla {1} karakter uzunluğunda olmalıdır.",
+                MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "Şifre")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Şifre Tekrar")]
+            [Compare("Password", ErrorMessage = "Şifre ile şifre tekrarı uyuşmuyor.")]
             public string ConfirmPassword { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ExternalLogins = (await _signInManager
+                .GetExternalAuthenticationSchemesAsync())
+                .ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            ExternalLogins = (await _signInManager
+                .GetExternalAuthenticationSchemesAsync())
+                .ToList();
 
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                await _userStore.SetUserNameAsync(
+                    user,
+                    Input.Email,
+                    CancellationToken.None);
 
-                var result = await _userManager.CreateAsync(user, Input.Password);
+                await _emailStore.SetEmailAsync(
+                    user,
+                    Input.Email,
+                    CancellationToken.None);
+
+                var result = await _userManager.CreateAsync(
+                    user,
+                    Input.Password);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation("Kullanıcı şifre ile yeni bir hesap oluşturdu.");
 
-                    // ============================
-                    // EKLENEN KISIM (GÜVENLİ)
-                    // Kullanıcı kayıt olunca Member otomatik oluşturulur
-                    // ============================
-
+                    // Register olan kullanıcı için Member otomatik oluştur
                     var existingMember = await _context.Members
                         .FirstOrDefaultAsync(m => m.Email == Input.Email);
 
@@ -110,7 +123,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
                     {
                         var member = new Member
                         {
-                            FullName = Input.Email, // ileride ad-soyad eklenebilir
+                            FullName = Input.Email,
                             Email = Input.Email,
                             Phone = "-"
                         };
@@ -119,31 +132,43 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
                         await _context.SaveChangesAsync();
                     }
 
-                    // ============================
-                    // ORİJİNAL IDENTITY AKIŞI DEVAM
-                    // ============================
-
                     var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                    var code = await _userManager
+                        .GenerateEmailConfirmationTokenAsync(user);
+
+                    code = WebEncoders.Base64UrlEncode(
+                        Encoding.UTF8.GetBytes(code));
+
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        values: new
+                        {
+                            area = "Identity",
+                            userId = userId,
+                            code = code,
+                            returnUrl = returnUrl
+                        },
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(
                         Input.Email,
-                        "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        "E-posta Adresinizi Onaylayın",
+                        $"Hesabınızı onaylamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage(
+                            "RegisterConfirmation",
+                            new { email = Input.Email, returnUrl = returnUrl });
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        await _signInManager.SignInAsync(
+                            user,
+                            isPersistent: false);
+
                         return LocalRedirect(returnUrl);
                     }
                 }
@@ -165,7 +190,9 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'.");
+                throw new InvalidOperationException(
+                    $"'{nameof(IdentityUser)}' türünden bir nesne oluşturulamıyor. " +
+                    $"'{nameof(IdentityUser)}' soyut bir sınıf olmadığından ve parametresiz bir kurucuya sahip olduğundan emin olun.");
             }
         }
 
@@ -173,10 +200,11 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                throw new NotSupportedException(
+                    "Varsayılan arayüz, e-posta destekleyen bir kullanıcı deposu gerektirir.");
             }
+
             return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }
 }
-

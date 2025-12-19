@@ -21,8 +21,8 @@ namespace FitnessCenterApp.Models
 
         public int ServiceId { get; set; }
         public Service? Service { get; set; }
-        public string? UserId { get; set; }
-        public IdentityUser? User { get; set; }
+        public string UserEmail { get; set; }
+
 
     }
 }

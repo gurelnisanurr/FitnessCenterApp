@@ -16,9 +16,9 @@ namespace FitnessCenterApp.Models
         public decimal Price { get; set; }
 
         public int FitnessCenterId { get; set; }
-        public FitnessCenter? FitnessCenter { get; set; }   // 🔹 Nullable
+        public FitnessCenter? FitnessCenter { get; set; }   
 
-        public List<Appointment>? Appointments { get; set; } = new(); // 🔹 Nullable + default boş liste
-        public List<Trainer>? Trainers { get; set; } = new();        // 🔹 Nullable + default boş liste
+        public List<Appointment>? Appointments { get; set; } = new();
+        public List<Trainer>? Trainers { get; set; } = new();    
     }
 }
