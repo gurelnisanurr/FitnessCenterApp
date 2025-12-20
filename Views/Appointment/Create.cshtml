@@ -2,62 +2,69 @@
 
 @{
     ViewData["Title"] = "Yeni Randevu";
-    var isAdmin = User.IsInRole("Admin");
 }
 
-<h1 class="mb-4">@ViewData["Title"]</h1>
+<div class="dashboard-hero">
+    <h1 class="text-dark-hero">Randevu Oluştur</h1>
+    <p class="lead text-muted-hero">Lütfen bilgileri eksiksiz doldurunuz.</p>
+</div>
 
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-6">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="card p-4 shadow-lg border-0 bg-dark text-white">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            @* ADMIN ise Üye seçsin *@
-            @if (isAdmin)
-            {
-                <div class="form-group mb-3">
-                    <label class="form-label">Üye</label>
-                    <select asp-for="MemberId" class="form-select" asp-items="ViewBag.MemberId">
-                        <option value="">Üye seçiniz</option>
+                <div class="mb-3">
+                    <label asp-for="MemberId" class="form-label">Üye Seçimi</label>
+                    <select asp-for="MemberId" class="form-select" asp-items="@(new SelectList(ViewBag.Members, "Id", "FullName"))">
+                        <option value="0">-- Üye Seçiniz --</option>
                     </select>
                     <span asp-validation-for="MemberId" class="text-danger"></span>
                 </div>
-            }
-            else
-            {
-                @* Normal kullanıcı: Üye seçtirme (controller otomatik atayacak) *@
-                <input type="hidden" asp-for="MemberId" />
-            }
 
-            <div class="form-group mb-3">
-                <label class="form-label">Eğitmen</label>
-                <select asp-for="TrainerId" class="form-select" asp-items="ViewBag.TrainerId">
-                    <option value="">Eğitmen seçiniz</option>
-                </select>
-                <span asp-validation-for="TrainerId" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="FitnessCenterId" class="form-label">Spor Salonu Şubesi</label>
+                    <select asp-for="FitnessCenterId" class="form-select" asp-items="@(new SelectList(ViewBag.FitnessCenters, "Id", "Name"))">
+                        <option value="0">-- Salon Seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="FitnessCenterId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-3">
-                <label class="form-label">Hizmet</label>
-                <select asp-for="ServiceId" class="form-select" asp-items="ViewBag.ServiceId">
-                    <option value="">Hizmet seçiniz</option>
-                </select>
-                <span asp-validation-for="ServiceId" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="ServiceId" class="form-label">Hizmet / Paket</label>
+                    <select asp-for="ServiceId" class="form-select" asp-items="@(new SelectList(ViewBag.Services, "Id", "ServiceName"))">
+                        <option value="0">-- Hizmet Seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-4">
-                <label class="form-label">Tarih / Saat</label>
-                <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="TrainerId" class="form-label">Eğitmen</label>
+                    <select asp-for="TrainerId" class="form-select" asp-items="@(new SelectList(ViewBag.Trainers, "Id", "FullName"))">
+                        <option value="0">-- Eğitmen Seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="TrainerId" class="text-danger"></span>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Listeye Dön</a>
-        </form>
+                <div class="mb-3">
+                    <label asp-for="AppointmentDate" class="form-label">Randevu Zamanı</label>
+                    <input asp-for="AppointmentDate" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Randevuyu Kaydet</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Listeye Dön</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
 

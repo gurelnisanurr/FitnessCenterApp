@@ -107,68 +107,42 @@ namespace FitnessCenterApp.Controllers
         // GET: Trainers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
-            var trainer = await _context.Trainers
-                .Include(t => t.Services)
-                .FirstOrDefaultAsync(t => t.Id == id);
+            // Eğitmeni buluyoruz
+            var trainer = await _context.Trainers.FindAsync(id);
+            if (trainer == null) return NotFound();
 
-            if (trainer == null)
-                return NotFound();
+            // Salon listesini dropdown için hazırlıyoruz
+            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenters, "Id", "Name", trainer.FitnessCenterId);
 
-            var model = new TrainerViewModel
-            {
-                Trainer = trainer,
-                SelectedServiceIds = trainer.Services.Select(s => s.Id).ToList(),
-                Services = _context.Services.Select(s => new SelectListItem
-                {
-                    Value = s.Id.ToString(),
-                    Text = s.ServiceName
-                }).ToList()
-            };
-
-            ViewData["FitnessCenterId"] =
-                new SelectList(_context.FitnessCenters, "Id", "Name", trainer.FitnessCenterId);
-
-            return View(model);
+            // DİKKAT: Burası 'trainer' olmalı, 'TrainerViewModel' değil!
+            return View(trainer);
         }
 
         // POST: Trainers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TrainerViewModel model)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,SpecialtyText,FitnessCenterId,AvailableFrom,AvailableTo")] Trainer trainer)
         {
-            if (id != model.Trainer.Id)
-                return NotFound();
+            if (id != trainer.Id) return NotFound();
 
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var trainer = await _context.Trainers
-                .Include(t => t.Services)
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (trainer == null)
-                return NotFound();
-
-            trainer.FullName = model.Trainer.FullName;
-            trainer.SpecialtyText = model.Trainer.SpecialtyText;
-            trainer.FitnessCenterId = model.Trainer.FitnessCenterId;
-
-            trainer.Services.Clear();
-
-            if (model.SelectedServiceIds != null)
+            if (ModelState.IsValid)
             {
-                var services = await _context.Services
-                    .Where(s => model.SelectedServiceIds.Contains(s.Id))
-                    .ToListAsync();
-
-                trainer.Services = services;
+                try
+                {
+                    _context.Update(trainer);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Trainers.Any(e => e.Id == trainer.Id)) return NotFound();
+                    else throw;
+                }
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            ViewData["FitnessCenterId"] = new SelectList(_context.FitnessCenters, "Id", "Name", trainer.FitnessCenterId);
+            return View(trainer);
         }
 
         // GET: Trainers/Delete/5

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitnessCenterApp.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialFinal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -71,6 +71,8 @@ namespace FitnessCenterApp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SpecialtyText = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AvailableFrom = table.Column<TimeSpan>(type: "time", nullable: false),
+                    AvailableTo = table.Column<TimeSpan>(type: "time", nullable: false),
                     FitnessCenterId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -90,15 +92,21 @@ namespace FitnessCenterApp.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AppointmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
                     MemberId = table.Column<int>(type: "int", nullable: false),
                     TrainerId = table.Column<int>(type: "int", nullable: false),
-                    ServiceId = table.Column<int>(type: "int", nullable: false)
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    FitnessCenterId = table.Column<int>(type: "int", nullable: false),
+                    AppointmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Appointments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Appointments_FitnessCenters_FitnessCenterId",
+                        column: x => x.FitnessCenterId,
+                        principalTable: "FitnessCenters",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Appointments_Members_MemberId",
                         column: x => x.MemberId,
@@ -137,6 +145,11 @@ namespace FitnessCenterApp.Migrations
                         principalTable: "Trainers",
                         principalColumn: "Id");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Appointments_FitnessCenterId",
+                table: "Appointments",
+                column: "FitnessCenterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_MemberId",

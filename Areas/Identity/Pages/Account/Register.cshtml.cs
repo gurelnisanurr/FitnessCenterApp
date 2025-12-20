@@ -27,9 +27,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-
-        // FitnessDbContext
-        private readonly FitnessDbContext _context;
+        private readonly FitnessDbContext _context; // Fitness veritabanı bağlantısı
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -37,7 +35,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            FitnessDbContext context) 
+            FitnessDbContext context) // Constructor'a eklendi
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -45,7 +43,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _context = context; 
+            _context = context;
         }
 
         [BindProperty]
@@ -59,120 +57,83 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "E-posta")]
+            [Display(Name = "Email")]
             public string Email { get; set; }
 
             [Required]
-            [StringLength(
-                100,
-                ErrorMessage = "{0} en az {2}, en fazla {1} karakter uzunluğunda olmalıdır.",
-                MinimumLength = 6)]
+            [StringLength(100, ErrorMessage = "{0} en az {2} ve en fazla {1} karakter uzunluğunda olmalıdır.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Şifre")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
             [Display(Name = "Şifre Tekrar")]
-            [Compare("Password", ErrorMessage = "Şifre ile şifre tekrarı uyuşmuyor.")]
+            [Compare("Password", ErrorMessage = "Şifreler eşleşmiyor.")]
             public string ConfirmPassword { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager
-                .GetExternalAuthenticationSchemesAsync())
-                .ToList();
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-
-            ExternalLogins = (await _signInManager
-                .GetExternalAuthenticationSchemesAsync())
-                .ToList();
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(
-                    user,
-                    Input.Email,
-                    CancellationToken.None);
-
-                await _emailStore.SetEmailAsync(
-                    user,
-                    Input.Email,
-                    CancellationToken.None);
-
-                var result = await _userManager.CreateAsync(
-                    user,
-                    Input.Password);
+                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Kullanıcı şifre ile yeni bir hesap oluşturdu.");
+                    _logger.LogInformation("Kullanıcı yeni bir hesap oluşturdu.");
 
-                    // Register olan kullanıcı için Member otomatik oluştur
-                    var existingMember = await _context.Members
-                        .FirstOrDefaultAsync(m => m.Email == Input.Email);
-
+                    // ============================================================
+                    // KRİTİK: Member Tablosuna Otomatik Kayıt
+                    // ============================================================
+                    var existingMember = await _context.Members.FirstOrDefaultAsync(m => m.Email == Input.Email);
                     if (existingMember == null)
                     {
-                        var member = new Member
+                        var newMember = new Member
                         {
-                            FullName = Input.Email,
+                            FullName = Input.Email.Split('@')[0], // E-posta'nın baş kısmını isim yap
                             Email = Input.Email,
-                            Phone = "-"
+                            Phone = "Girilmedi"
                         };
-
-                        _context.Members.Add(member);
+                        _context.Members.Add(newMember);
                         await _context.SaveChangesAsync();
                     }
+                    // ============================================================
 
                     var userId = await _userManager.GetUserIdAsync(user);
-
-                    var code = await _userManager
-                        .GenerateEmailConfirmationTokenAsync(user);
-
-                    code = WebEncoders.Base64UrlEncode(
-                        Encoding.UTF8.GetBytes(code));
-
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new
-                        {
-                            area = "Identity",
-                            userId = userId,
-                            code = code,
-                            returnUrl = returnUrl
-                        },
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(
-                        Input.Email,
-                        "E-posta Adresinizi Onaylayın",
-                        $"Hesabınızı onaylamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "E-postanızı onaylayın",
+                        $"Lütfen hesabınızı onaylamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage(
-                            "RegisterConfirmation",
-                            new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(
-                            user,
-                            isPersistent: false);
-
+                        await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
                 }
-
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -190,9 +151,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             }
             catch
             {
-                throw new InvalidOperationException(
-                    $"'{nameof(IdentityUser)}' türünden bir nesne oluşturulamıyor. " +
-                    $"'{nameof(IdentityUser)}' soyut bir sınıf olmadığından ve parametresiz bir kurucuya sahip olduğundan emin olun.");
+                throw new InvalidOperationException($"'{nameof(IdentityUser)}' nesnesi oluşturulamadı.");
             }
         }
 
@@ -200,10 +159,8 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException(
-                    "Varsayılan arayüz, e-posta destekleyen bir kullanıcı deposu gerektirir.");
+                throw new NotSupportedException("Default UI e-posta desteği gerektirir.");
             }
-
             return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }

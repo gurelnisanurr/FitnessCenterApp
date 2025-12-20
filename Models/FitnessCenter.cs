@@ -16,7 +16,8 @@ namespace FitnessCenterApp.Models
 
         public string WorkingHours { get; set; }
 
-        public List<Service> Services { get; set; } = new List<Service>();
-        public List<Trainer> Trainers { get; set; } = new List<Trainer>();
+        public List<Service> Services { get; set; } = new();
+        public List<Trainer> Trainers { get; set; } = new();
+        public List<Appointment> Appointments { get; set; } = new();
     }
 }

@@ -4,61 +4,68 @@
     ViewData["Title"] = "Randevu Düzenle";
 }
 
-<h1>Randevu Düzenle</h1>
+<div class="dashboard-hero">
+    <h1 class="text-dark-hero">Randevu Düzenle</h1>
+    <p class="lead text-muted-hero">Randevu bilgilerini güncelleyebilirsiniz.</p>
+</div>
 
-<hr />
-
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-6">
-        <form asp-action="Edit">
-            <input type="hidden" asp-for="Id" />
+        <div class="card p-4 shadow-lg border-0 bg-dark text-white">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Id" />
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="MemberId" class="form-label">Üye</label>
+                    <select asp-for="MemberId" class="form-select" asp-items="@(new SelectList(ViewBag.Members, "Id", "FullName"))">
+                    </select>
+                    <span asp-validation-for="MemberId" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="MemberId" class="form-label"></label>
-                <select asp-for="MemberId" class="form-select"
-                        asp-items="ViewBag.MemberId">
-                </select>
-                <span asp-validation-for="MemberId" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="FitnessCenterId" class="form-label">Spor Salonu Şubesi</label>
+                    <select asp-for="FitnessCenterId" class="form-select" asp-items="@(new SelectList(ViewBag.FitnessCenters, "Id", "Name"))">
+                    </select>
+                    <span asp-validation-for="FitnessCenterId" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="TrainerId" class="form-label"></label>
-                <select asp-for="TrainerId" class="form-select"
-                        asp-items="ViewBag.TrainerId">
-                </select>
-                <span asp-validation-for="TrainerId" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="ServiceId" class="form-label">Hizmet / Paket</label>
+                    <select asp-for="ServiceId" class="form-select" asp-items="@(new SelectList(ViewBag.Services, "Id", "ServiceName"))">
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="ServiceId" class="form-label"></label>
-                <select asp-for="ServiceId" class="form-select"
-                        asp-items="ViewBag.ServiceId">
-                </select>
-                <span asp-validation-for="ServiceId" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="TrainerId" class="form-label">Eğitmen</label>
+                    <select asp-for="TrainerId" class="form-select" asp-items="@(new SelectList(ViewBag.Trainers, "Id", "FullName"))">
+                    </select>
+                    <span asp-validation-for="TrainerId" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="AppointmentDate" class="form-label"></label>
-                <input asp-for="AppointmentDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="AppointmentDate" class="form-label">Randevu Zamanı</label>
+                    <input asp-for="AppointmentDate" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3 form-check">
-                <input asp-for="IsApproved" class="form-check-input" />
-                <label asp-for="IsApproved" class="form-check-label"></label>
-            </div>
+                <div class="mb-3 form-check">
+                    <input class="form-check-input" asp-for="IsApproved" />
+                    <label class="form-check-label" asp-for="IsApproved">Onaylı mı?</label>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Kaydet</button>
-            <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
-        </form>
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Değişiklikleri Kaydet</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Listeye Dön</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
+        [cite_start]@{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    } [cite: 21]
 }
-

@@ -33,6 +33,9 @@ namespace FitnessCenterApp.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FitnessCenterId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
@@ -45,11 +48,9 @@ namespace FitnessCenterApp.Migrations
                     b.Property<int>("TrainerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("FitnessCenterId");
 
                     b.HasIndex("MemberId");
 
@@ -188,6 +189,12 @@ namespace FitnessCenterApp.Migrations
 
             modelBuilder.Entity("FitnessCenterApp.Models.Appointment", b =>
                 {
+                    b.HasOne("FitnessCenterApp.Models.FitnessCenter", "FitnessCenter")
+                        .WithMany("Appointments")
+                        .HasForeignKey("FitnessCenterId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("FitnessCenterApp.Models.Member", "Member")
                         .WithMany("Appointments")
                         .HasForeignKey("MemberId")
@@ -205,6 +212,8 @@ namespace FitnessCenterApp.Migrations
                         .HasForeignKey("TrainerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("FitnessCenter");
 
                     b.Navigation("Member");
 
@@ -252,6 +261,8 @@ namespace FitnessCenterApp.Migrations
 
             modelBuilder.Entity("FitnessCenterApp.Models.FitnessCenter", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("Services");
 
                     b.Navigation("Trainers");

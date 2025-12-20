@@ -100,14 +100,7 @@ namespace FitnessCenterApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FitnessCenterExists(fitnessCenter.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -137,19 +130,43 @@ namespace FitnessCenterApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var fitnessCenter = await _context.FitnessCenters.FindAsync(id);
-            if (fitnessCenter != null)
+            var fitnessCenter = await _context.FitnessCenters
+                .Include(f => f.Appointments)
+                .Include(f => f.Services)
+                    .ThenInclude(s => s.Trainers)
+                .Include(f => f.Trainers)
+                    .ThenInclude(t => t.Services)
+                .FirstOrDefaultAsync(f => f.Id == id);
+
+            if (fitnessCenter == null)
+                return NotFound();
+
+            // 1️⃣ RANDEVULAR
+            _context.Appointments.RemoveRange(fitnessCenter.Appointments);
+
+            // 2️⃣ SERVICE ↔ TRAINER BAĞLANTILARI
+            foreach (var service in fitnessCenter.Services)
             {
-                _context.FitnessCenters.Remove(fitnessCenter);
+                service.Trainers.Clear();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            foreach (var trainer in fitnessCenter.Trainers)
+            {
+                trainer.Services.Clear();
+            }
 
-        private bool FitnessCenterExists(int id)
-        {
-            return _context.FitnessCenters.Any(e => e.Id == id);
+            // 3️⃣ SERVICES
+            _context.Services.RemoveRange(fitnessCenter.Services);
+
+            // 4️⃣ TRAINERS
+            _context.Trainers.RemoveRange(fitnessCenter.Trainers);
+
+            // 5️⃣ SALON
+            _context.FitnessCenters.Remove(fitnessCenter);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

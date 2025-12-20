@@ -1,190 +1,190 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using FitnessCenterApp.Data;
 using FitnessCenterApp.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
-namespace FitnessCenterApp.Controllers
+public class AppointmentController : Controller
 {
-    [Authorize]
-    public class AppointmentController : Controller
+    private readonly FitnessDbContext _context;
+
+    public AppointmentController(FitnessDbContext context)
     {
-        private readonly FitnessDbContext _context;
+        _context = context;
+    }
 
-        public AppointmentController(FitnessDbContext context)
+    // GET: Tüm Randevuları Listele (Admin İçin)
+    public async Task<IActionResult> Index()
+    {
+        var list = await _context.Appointments
+            .Include(a => a.Member)
+            .Include(a => a.Trainer)
+            .Include(a => a.Service)
+            .Include(a => a.FitnessCenter)
+            .ToListAsync();
+        return View(list);
+    }
+
+    // GET: Kullanıcının Kendi Randevuları
+    [Authorize]
+    public async Task<IActionResult> MyAppointments()
+    {
+        var userEmail = User.Identity?.Name;
+        var myAppointments = await _context.Appointments
+            .Include(a => a.Trainer)
+            .Include(a => a.Service)
+            .Include(a => a.FitnessCenter)
+            .Include(a => a.Member)
+            .Where(a => a.Member.Email == userEmail)
+            .ToListAsync();
+
+        return View(myAppointments);
+    }
+
+    // GET: Detay Sayfası
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var appointment = await _context.Appointments
+            .Include(a => a.Member)
+            .Include(a => a.Trainer)
+            .Include(a => a.Service)
+            .Include(a => a.FitnessCenter)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (appointment == null) return NotFound();
+
+        return View(appointment);
+    }
+
+    // GET: Yeni Randevu Oluşturma Sayfası
+    public IActionResult Create()
+    {
+        LoadDropdowns();
+        return View(new Appointment());
+    }
+
+    // POST: Yeni Randevu Kaydı
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(Appointment appointment)
+    {
+        if (ModelState.IsValid)
         {
-            _context = context;
-        }
-
-        // =======================
-        // ADMIN TÜM RANDEVULAR
-        // =======================
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Index()
-        {
-            var list = await _context.Appointments
-                .Include(a => a.Member)
-                .Include(a => a.Trainer)
-                .Include(a => a.Service)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ToListAsync();
-
-            return View(list);
-        }
-
-        // =======================
-        // KULLANICI KENDİ RANDEVULARI
-        // =======================
-        public async Task<IActionResult> MyAppointments()
-        {
-            var email = User.Identity?.Name;
-            if (email == null) return Challenge();
-
-            var list = await _context.Appointments
-                .Include(a => a.Member)
-                .Include(a => a.Trainer)
-                .Include(a => a.Service)
-                .Where(a => a.UserEmail == email)
-                .OrderByDescending(a => a.AppointmentDate)
-                .ToListAsync();
-
-            return View(list);
-        }
-
-        // =======================
-        // CREATE GET
-        // =======================
-        public IActionResult Create()
-        {
-            if (User.IsInRole("Admin"))
-                ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName");
-
-            ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName");
-            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "ServiceName");
-
-            return View();
-        }
-
-        // =======================
-        // CREATE POST
-        // =======================
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Appointment appointment)
-        {
-            var email = User.Identity?.Name;
-            if (email == null) return Challenge();
-
-            // 🔑 SADECE EMAIL
-            appointment.UserEmail = email;
-
-            // Eski FK’lerden kalan validationları iptal et
-            ModelState.Remove("UserId");
-            ModelState.Remove("User");
-
-            // 👤 Normal kullanıcı → Member otomatik
-            if (!User.IsInRole("Admin"))
-            {
-                var member = await _context.Members.FirstOrDefaultAsync(m => m.Email == email);
-                if (member == null)
-                {
-                    ModelState.AddModelError("", "Üyelik kaydı bulunamadı.");
-                }
-                else
-                {
-                    appointment.MemberId = member.Id;
-                }
-            }
-
-            // Service
-            var service = await _context.Services.FindAsync(appointment.ServiceId);
-            if (service == null)
-                ModelState.AddModelError("ServiceId", "Geçersiz hizmet.");
-
-            // Trainer
-            var trainer = await _context.Trainers.FindAsync(appointment.TrainerId);
-            if (trainer == null)
-                ModelState.AddModelError("TrainerId", "Geçersiz eğitmen.");
-
-            // Saat + Çakışma
-            if (ModelState.IsValid)
-            {
-                var start = appointment.AppointmentDate;
-                var end = start.AddMinutes(service.DurationInMinutes);
-
-                if (start.TimeOfDay < trainer.AvailableFrom ||
-                    end.TimeOfDay > trainer.AvailableTo)
-                {
-                    ModelState.AddModelError("AppointmentDate",
-                        $"Eğitmen müsait değil ({trainer.AvailableFrom:hh\\:mm}-{trainer.AvailableTo:hh\\:mm})");
-                }
-
-                var conflict = await _context.Appointments
-                    .Include(a => a.Service)
-                    .AnyAsync(a =>
-                        a.TrainerId == appointment.TrainerId &&
-                        a.AppointmentDate < end &&
-                        a.AppointmentDate.AddMinutes(a.Service.DurationInMinutes) > start);
-
-                if (conflict)
-                    ModelState.AddModelError("AppointmentDate", "Bu saat için randevu var.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                if (User.IsInRole("Admin"))
-                    ViewData["MemberId"] = new SelectList(_context.Members, "Id", "FullName", appointment.MemberId);
-
-                ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "FullName", appointment.TrainerId);
-                ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "ServiceName", appointment.ServiceId);
-
-                return View(appointment);
-            }
-
-            appointment.IsApproved = false;
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(MyAppointments));
+            return RedirectToAction(nameof(Index));
         }
 
-        // =======================
-        // DELETE
-        // =======================
-        public async Task<IActionResult> Delete(int id)
+        LoadDropdowns();
+        return View(appointment);
+    }
+
+    // GET: Randevu Düzenleme Sayfası
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var appointment = await _context.Appointments.FindAsync(id);
+        if (appointment == null) return NotFound();
+
+        LoadDropdowns();
+        return View(appointment);
+    }
+
+    // POST: Randevu Güncelleme
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, Appointment appointment)
+    {
+        if (id != appointment.Id) return NotFound();
+
+        if (ModelState.IsValid)
         {
-            var appointment = await _context.Appointments
-                .Include(a => a.Member)
-                .Include(a => a.Trainer)
-                .Include(a => a.Service)
-                .FirstOrDefaultAsync(a => a.Id == id);
-
-            if (appointment == null) return NotFound();
-
-            if (!User.IsInRole("Admin") && appointment.UserEmail != User.Identity!.Name)
-                return Forbid();
-
-            return View(appointment);
+            try
+            {
+                _context.Update(appointment);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Appointments.Any(e => e.Id == appointment.Id)) return NotFound();
+                else throw;
+            }
+            return RedirectToAction(nameof(Index));
         }
+        LoadDropdowns();
+        return View(appointment);
+    }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+    // GET: Randevu Silme Onay Sayfası
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null) return NotFound();
+
+        var appointment = await _context.Appointments
+            .Include(a => a.Member)
+            .Include(a => a.Trainer)
+            .Include(a => a.Service)
+            .Include(a => a.FitnessCenter)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (appointment == null) return NotFound();
+
+        return View(appointment);
+    }
+
+    // POST: Randevu Silme İşlemi
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var appointment = await _context.Appointments.FindAsync(id);
+        if (appointment != null)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
-            if (appointment == null) return NotFound();
-
-            if (!User.IsInRole("Admin") && appointment.UserEmail != User.Identity!.Name)
-                return Forbid();
-
             _context.Appointments.Remove(appointment);
             await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(MyAppointments));
         }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // Dropdownları Yükleme Yardımcı Metodu
+    private void LoadDropdowns()
+    {
+        ViewBag.Members = _context.Members.ToList();
+        ViewBag.Trainers = _context.Trainers.ToList();
+        ViewBag.Services = _context.Services.ToList();
+        ViewBag.FitnessCenters = _context.FitnessCenters.ToList();
+    }
+
+    // POST: Randevu Onaylama (Admin)
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Approve(int id)
+    {
+        var app = await _context.Appointments.FindAsync(id);
+        if (app != null)
+        {
+            app.IsApproved = true;
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: Onayı Geri Çekme (Admin)
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Reject(int id)
+    {
+        var app = await _context.Appointments.FindAsync(id);
+        if (app != null)
+        {
+            app.IsApproved = false;
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction(nameof(Index));
     }
 }
