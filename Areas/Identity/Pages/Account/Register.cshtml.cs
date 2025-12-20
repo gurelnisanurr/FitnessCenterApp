@@ -35,7 +35,7 @@ namespace FitnessCenterApp.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            FitnessDbContext context) // Constructor'a eklendi
+            FitnessDbContext context) 
         {
             _userManager = userManager;
             _userStore = userStore;

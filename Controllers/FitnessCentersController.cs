@@ -141,10 +141,10 @@ namespace FitnessCenterApp.Controllers
             if (fitnessCenter == null)
                 return NotFound();
 
-            // 1️⃣ RANDEVULAR
+            
             _context.Appointments.RemoveRange(fitnessCenter.Appointments);
 
-            // 2️⃣ SERVICE ↔ TRAINER BAĞLANTILARI
+            
             foreach (var service in fitnessCenter.Services)
             {
                 service.Trainers.Clear();

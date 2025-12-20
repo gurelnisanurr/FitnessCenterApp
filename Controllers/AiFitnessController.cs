@@ -17,107 +17,87 @@ namespace FitnessCenterApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
-        {
-            return View(new AiFitnessViewModel());
-        }
+        public IActionResult Index() => View(new AiFitnessViewModel());
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(AiFitnessViewModel model)
+        public async Task<IActionResult> Index(AiFitnessViewModel model, IFormFile? UserPhoto)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
             var apiKey = _config["Gemini:ApiKey"];
             if (string.IsNullOrWhiteSpace(apiKey))
             {
-                model.AiResponse = "Gemini API anahtarı bulunamadı. appsettings.Development.json içine ekle.";
+                model.AiResponse = "Hata: API Key bulunamadı.";
                 return View(model);
             }
 
-            // Prompt
-            var prompt = $"""
-            Kullanıcı bilgileri:
-            Boy: {model.Height} cm
-            Kilo: {model.Weight} kg
-            Hedef: {model.Goal}
+            string base64Image = "";
+            if (UserPhoto != null && UserPhoto.Length > 0)
+            {
+                using var ms = new MemoryStream();
+                await UserPhoto.CopyToAsync(ms);
+                base64Image = Convert.ToBase64String(ms.ToArray());
+            }
 
-            Buna göre Türkçe, sade ve maddeler halinde:
-            1) Haftalık egzersiz planı (gün gün)
-            2) Diyet/kalori önerileri
-            3) Dikkat edilmesi gerekenler
+            // Prompt: AI'dan anatomik analiz istiyoruz
+            var prompt = $"""
+            Kullanıcı Bilgileri: Boy {model.Height}cm, Kilo {model.Weight}kg, Hedef: {model.Goal}.
+            Lütfen Türkçe olarak: 
+            1. Mevcut fiziksel durumu analiz et.
+            2. Bu hedefe ulaşmak için gereken temel önerileri ver.
+            3. Gelecekteki hali için profesyonel bir betimleme yap.
             """;
 
-            // Gemini generateContent request gövdesi
             var requestBody = new
             {
-                contents = new[]
-                {
-                    new
-                    {
-                        parts = new[]
-                        {
-                            new { text = prompt }
-                        }
+                contents = new[] {
+                    new {
+                        parts = string.IsNullOrEmpty(base64Image)
+                            ? (object[])new[] { new { text = prompt } }
+                            : new object[] {
+                                new { text = prompt },
+                                new { inline_data = new { mime_type = "image/jpeg", data = base64Image } }
+                            }
                     }
                 }
             };
 
-            var modelName = "gemini-2.5-flash";
-
-            var url =
-                $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
 
             using var client = new HttpClient();
-            using var content = new StringContent(
-                JsonSerializer.Serialize(requestBody),
-                Encoding.UTF8,
-                "application/json"
-            );
-
-            HttpResponseMessage resp;
-            try
-            {
-                resp = await client.PostAsync(url, content);
-            }
-            catch
-            {
-                model.AiResponse = "Gemini servisine bağlanılamadı (internet/SSL/proxy kontrol et).";
-                return View(model);
-            }
-
-            var respText = await resp.Content.ReadAsStringAsync();
-
-            if (!resp.IsSuccessStatusCode)
-            {
-                // Hata mesajını ekrana bas
-                model.AiResponse = $"Gemini Hatası ({(int)resp.StatusCode}): {respText}";
-                return View(model);
-            }
+            var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
             try
             {
+                var resp = await client.PostAsync(url, content);
+                var respText = await resp.Content.ReadAsStringAsync();
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    model.AiResponse = $"Gemini Hatası ({(int)resp.StatusCode}): {respText}";
+                    return View(model);
+                }
+
                 using var doc = JsonDocument.Parse(respText);
+                model.AiResponse = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
 
-                var root = doc.RootElement;
+                if (!string.IsNullOrEmpty(base64Image)) ViewBag.UploadedPhoto = $"data:image/jpeg;base64,{base64Image}";
 
-                var text =
-                    root.GetProperty("candidates")[0]
-                        .GetProperty("content")
-                        .GetProperty("parts")[0]
-                        .GetProperty("text")
-                        .GetString();
-
-                model.AiResponse = string.IsNullOrWhiteSpace(text)
-                    ? "Gemini boş yanıt döndü."
-                    : text;
+                ViewBag.GoalImage = model.Goal switch
+                {
+                    "Kilo vermek" => "/images/zayif.png",
+                    "Aşırı Kilo Vermek" => "/images/asiri_zayif.png",
+                    "Kas kazanmak" => "/images/kasli.png",
+                    "Aşırı Kas Yapmak" => "/images/asiri_kasli.png",
+                    "Formda kalmak" => "/images/formda.png",
+                    _ => "/images/formda.png"
+                };
             }
-            catch
+            catch (Exception ex)
             {
-                model.AiResponse = "Gemini cevabı parse edilemedi. Ham cevap: " + respText;
+                model.AiResponse = "Bağlantı Hatası: " + ex.Message;
             }
-
             return View(model);
         }
     }

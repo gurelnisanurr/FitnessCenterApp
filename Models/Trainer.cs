@@ -8,19 +8,23 @@ namespace FitnessCenterApp.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Display(Name = "Ad Soyad")]
+        [Required(ErrorMessage = "{0} alanı zorunludur.")]
         public string FullName { get; set; }
 
-        [Required]
+        [Display(Name = "Uzmanlık Alanı")]
+        [Required(ErrorMessage = "{0} alanı zorunludur.")]
         public string SpecialtyText { get; set; }
 
-        // Günlük müsaitlik saatleri
-        [Required]
+        [Display(Name = "Müsaitlik Başlangıç")]
+        [Required(ErrorMessage = "{0} alanı zorunludur.")]
         public TimeSpan AvailableFrom { get; set; } = new TimeSpan(9, 0, 0);
 
-        [Required]
+        [Display(Name = "Müsaitlik Bitiş")]
+        [Required(ErrorMessage = "{0} alanı zorunludur.")]
         public TimeSpan AvailableTo { get; set; } = new TimeSpan(18, 0, 0);
 
+        [Display(Name = "Spor Salonu")]
         public int FitnessCenterId { get; set; }
         public FitnessCenter? FitnessCenter { get; set; }
 
@@ -28,4 +32,3 @@ namespace FitnessCenterApp.Models
         public List<Appointment>? Appointments { get; set; } = new();
     }
 }
-

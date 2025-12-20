@@ -49,7 +49,11 @@
 
                 <div class="mb-3">
                     <label asp-for="AppointmentDate" class="form-label">Randevu Zamanı</label>
-                    <input asp-for="AppointmentDate" type="datetime-local" class="form-control" />
+                    <input asp-for="AppointmentDate"
+                           type="datetime-local"
+                           class="form-control"
+                           value="@Model.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")"
+                           step="60" />
                     <span asp-validation-for="AppointmentDate" class="text-danger"></span>
                 </div>
 

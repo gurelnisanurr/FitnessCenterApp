@@ -18,8 +18,6 @@ namespace FitnessCenterApp.Controllers
             _context = context;
         }
 
-        // Örnek çağrı:
-        // GET /api/trainersapi/available?date=2025-12-10T10:00:00&serviceId=1
         [HttpGet("available")]
         public async Task<IActionResult> GetAvailableTrainers(DateTime date, int serviceId)
         {
