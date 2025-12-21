@@ -4,60 +4,72 @@
     ViewData["Title"] = "Randevular";
 }
 
-<h1>Randevular</h1>
+<h1 class="mb-4">Randevular</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Yeni Randevu Oluştur</a>
+    <a asp-action="Create" class="btn btn-primary shadow-sm"><i class="fas fa-plus"></i> Yeni Randevu Oluştur</a>
 </p>
 
-<table class="table table-striped">
-    <thead>
+<table class="table table-hover align-middle shadow-sm bg-dark text-white rounded">
+    <thead class="table-secondary text-dark">
         <tr>
             <th>Üye</th>
             <th>Eğitmen</th>
             <th>Hizmet</th>
             <th>Tarih / Saat</th>
             <th>Onay Durumu</th>
-            <th></th>
+            <th class="text-center">İşlemler</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model)
-{
-        <tr>
-            <td>@item.Member?.FullName</td>
-            <td>@item.Trainer?.FullName</td>
-            <td>@item.Service?.ServiceName</td>
-            <td>@item.AppointmentDate</td>
-            <td>
-                @if (item.IsApproved)
-                {
-                    <span class="badge bg-success">Onaylı</span>
-                }
-                else
-                {
-                    <span class="badge bg-warning text-dark">Onaysız</span>
-                }
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Detay</a>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Düzenle</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Sil</a>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Member?.FullName</td>
+                <td>@item.Trainer?.FullName</td>
+                <td>@item.Service?.ServiceName</td>
+                @* Saniye ve milisaniyeleri gizleyerek temiz tarih gösterimi *@
+                <td>@item.AppointmentDate.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>
+                    @if (item.IsApproved)
+                    {
+                        <span class="badge bg-success">Onaylı</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Onaysız</span>
+                    }
+                </td>
+                <td>
+                    @* BUTONLARIN YAN YANA DURMASI İÇİN D-FLEX KULLANILDI *@
+                    <div class="d-flex justify-content-center gap-1">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Detay</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Düzenle</a>
 
-                @if (!item.IsApproved)
-                {
-                    <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-success">Onayla</button>
-                    </form>
-                }
-                else
-                {
-                    <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-warning">Onayı Kaldır</button>
-                    </form>
-                }
-            </td>
-        </tr>
-}
+                        @* SİLME FORMU - POST METODU (405 Hatasını Önler) *@
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                        </form>
+
+                        @* ONAY / ONAYI KALDIR MEKANİZMASI *@
+                        @if (!item.IsApproved)
+                        {
+                            <form asp-action="Approve" asp-route-id="@item.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-success">Onayla</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Reject" asp-route-id="@item.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-warning text-dark">Onayı Kaldır</button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

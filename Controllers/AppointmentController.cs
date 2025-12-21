@@ -14,7 +14,7 @@ public class AppointmentController : Controller
         _context = context;
     }
 
-    // GET: Tüm Randevuları Listele (Admin)
+    // GET: Tüm Randevuları Listele (Admin ve Personel)
     public async Task<IActionResult> Index()
     {
         var list = await _context.Appointments
@@ -46,7 +46,6 @@ public class AppointmentController : Controller
     public IActionResult Create()
     {
         LoadDropdowns();
-        // Saniyeleri temizlenmiş başlangıç tarihi
         var model = new Appointment
         {
             AppointmentDate = DateTime.Now.Date.AddHours(DateTime.Now.Hour).AddMinutes(DateTime.Now.Minute)
@@ -59,28 +58,24 @@ public class AppointmentController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Appointment appointment)
     {
-        // 1. ZAMAN TEMİZLEME: Saniye ve milisaniyeyi sıfırla
+        // Zamanı saniye/milisaniyeden temizleme
         appointment.AppointmentDate = new DateTime(
             appointment.AppointmentDate.Year, appointment.AppointmentDate.Month, appointment.AppointmentDate.Day,
             appointment.AppointmentDate.Hour, appointment.AppointmentDate.Minute, 0
         );
 
-        // 2. ÇAKIŞMA KONTROLÜ (LINQ): Aynı hoca, aynı saatte dolu mu?
+        // LINQ ile Çakışma Kontrolü
         bool isBusy = _context.Appointments.Any(a =>
             a.TrainerId == appointment.TrainerId &&
             a.AppointmentDate == appointment.AppointmentDate);
 
         if (isBusy)
         {
-            // Hata mesajı ekle
             ModelState.AddModelError("AppointmentDate", "Seçilen antrenör bu saatte dolu. Lütfen başka bir zaman seçiniz.");
-
-            // NULL HATASINI ÖNLEYEN KRİTİK ADIM: Listeleri tekrar yükle
-            LoadDropdowns();
+            LoadDropdowns(); 
             return View(appointment);
         }
 
-        // 3. GEÇMİŞ TARİH KONTROLÜ
         if (appointment.AppointmentDate < DateTime.Now)
         {
             ModelState.AddModelError("AppointmentDate", "Geçmiş bir tarihe randevu alınamaz.");
@@ -95,8 +90,30 @@ public class AppointmentController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // Model geçerli değilse listeleri tekrar yükle
         LoadDropdowns();
+        return View(appointment);
+    }
+
+    // GET: Randevu Detay Sayfası
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var appointment = await _context.Appointments
+            .Include(a => a.Member)
+            .Include(a => a.Trainer)
+            .Include(a => a.Service)
+            .Include(a => a.FitnessCenter)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (appointment == null)
+        {
+            return NotFound();
+        }
+
         return View(appointment);
     }
 
@@ -118,7 +135,6 @@ public class AppointmentController : Controller
     {
         if (id != appointment.Id) return NotFound();
 
-        // Düzenleme sırasında çakışma kontrolü (Kendisi hariç)
         bool isConflict = _context.Appointments.Any(a =>
             a.Id != id &&
             a.TrainerId == appointment.TrainerId &&
@@ -149,7 +165,7 @@ public class AppointmentController : Controller
         return View(appointment);
     }
 
-    // Yükleme sırasında patlamayı önleyen güvenli liste yükleyici
+    // Listeleri yükleyerek ViewBag'e aktaran yardımcı metot
     private void LoadDropdowns()
     {
         ViewBag.Members = _context.Members.ToList() ?? new List<Member>();
@@ -158,22 +174,47 @@ public class AppointmentController : Controller
         ViewBag.FitnessCenters = _context.FitnessCenters.ToList() ?? new List<FitnessCenter>();
     }
 
-    // Onay ve Silme Metodları
+    // Onaylama Metodu (Admin Yetkisi Gerekir)
     [HttpPost]
     [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Approve(int id)
     {
         var app = await _context.Appointments.FindAsync(id);
-        if (app != null) { app.IsApproved = true; await _context.SaveChangesAsync(); }
+        if (app != null)
+        {
+            app.IsApproved = true;
+            await _context.SaveChangesAsync();
+        }
         return RedirectToAction(nameof(Index));
     }
 
+    // Onayı Kaldırma Metodu (Admin Yetkisi Gerekir)
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reject(int id)
+    {
+        var app = await _context.Appointments.FindAsync(id);
+        if (app != null)
+        {
+            app.IsApproved = false; // Onay kaldırılıyor
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // Silme Metodu
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var appointment = await _context.Appointments.FindAsync(id);
-        if (appointment != null) { _context.Appointments.Remove(appointment); await _context.SaveChangesAsync(); }
+        if (appointment != null)
+        {
+            _context.Appointments.Remove(appointment);
+            await _context.SaveChangesAsync();
+        }
         return RedirectToAction(nameof(Index));
     }
 }
